@@ -68,42 +68,106 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem, start, visited = None):
-    """
-    Search the deepest nodes in the search tree first.
+def depthFirstSearch(problem):
+     """
+     Search the deepest nodes in the search tree first.
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
+     Your search algorithm needs to return a list of actions that reaches the
+     goal. Make sure to implement a graph search algorithm.
 
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
+     To get started, you might want to try some of these simple commands to
+     understand the search problem that is being passed in:
+     #here i inspired the code from another place
+     print "Start:", problem.getStartState()
+     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+     print "Start's successors:", problem.getSuccessors(problem.getStartState())
+     """
+     "*** YOUR CODE HERE ***"
+     fringe = util.Stack()  # Fringe (Stack) to store the nodes along with their paths
+     visited = set()  # A set to maintain all the visited nodes
+     node = problem.getStartState()
+     fringe.push((node, []))  # Pushing (Node, [Path from start-node till 'Node']) to the fringe
+     while True:
+         popped_element = fringe.pop()
+         node = popped_element[0]
+         path_to_node = popped_element[1]
+         if problem.isGoalState(node):
+             break
 
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-    "*** YOUR CODE HERE ***"
-    if visited is None:
-        visited = set()
-    visited.add(start)
-
-    for next in problem[start] - visited:
-        dfs(problem, next, visited)
-    return visited
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    util.raiseNotDefined()
+         else:
+             if node not in visited:
+                 visited.add(node)
+                 successors_list = problem.getSuccessors(node)  # contain(nextpossible node,direcion to it,cost)
+                 for successor in successors_list:
+                     current_node_child = successor[0]
+                     direction_to_child = successor[1]  # string
+                     path_to_child_from_start = path_to_node + [direction_to_child]
+                     fringe.push((current_node_child, path_to_child_from_start))
+                     # print "Successors:", problem.getSuccessors(node)
+     # print "Start:", problem.getStartState()
+     # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+     return path_to_node
+     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    fringe = util.Queue()
+    visited = set()
+    node = problem.getStartState() #start node it self
+    fringe.push((node, []))         #start node and path to it
+
+    while True:
+     popped_element = fringe.pop()
+     node = popped_element[0]
+     path_to_node = popped_element[1]
+     if problem.isGoalState(node):
+         break
+
+     else:
+        if node not in visited:
+            visited.add(node)
+            successors_list = problem.getSuccessors(node)#contain(nextpossible node,direcion to it,cost)
+            for successor in successors_list:
+                current_node_child = successor[0]
+                direction_to_child = successor[1] #string
+                path_to_child_from_start = path_to_node+ [direction_to_child]
+                fringe.push((current_node_child,path_to_child_from_start))
+                #print "Successors:", problem.getSuccessors(node)
+    #print "Start:", problem.getStartState()
+    #print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    return path_to_node
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    fringe = util.PriorityQueue()
+    visited = set()
+    node = problem.getStartState()  # start node it self
+    fringe.push((node, [],0),0)  # start node and path to it
+    while True:
+        popped_element = fringe.pop()
+        node = popped_element[0]
+        path_to_node = popped_element[1]
+        cost_to_node = popped_element[2]
+        if problem.isGoalState(node):
+            break
+        else:
+            if node not in visited:
+                visited.add(node)
+                successors_list = problem.getSuccessors(node)  # contain(nextpossible node,direcion to it,cost)
+                for successor in successors_list:
+                    current_node_child = successor[0]
+                    direction_to_child = successor[1]  # string
+                    cost_to_child = successor[2]  # string
+                    cost_from_start_to_child = cost_to_node + cost_to_child
+                    path_to_child_from_start = path_to_node + [direction_to_child]
+                    fringe.push((current_node_child, path_to_child_from_start,cost_from_start_to_child),cost_from_start_to_child)
+                    # print "Successors:", problem.getSuccessors(node)
+    # print "Start:", problem.getStartState()
+    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    return path_to_node
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -115,10 +179,35 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
+    """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    fringe = util.PriorityQueue()
+    visited = set()
+    node = problem.getStartState()  # start node it self
+    fringe.push((node, [],0), nullHeuristic(problem.getStartState(), problem) + 0)  # start node and path to it
+    while True:
+        popped_element = fringe.pop()
+        node = popped_element[0]
+        path_to_node = popped_element[1]
+        cost_to_node = popped_element[2]
+        if problem.isGoalState(node):
+            break
+        else:
+            if node not in visited:
+                visited.add(node)
+                successors_list = problem.getSuccessors(node)  # contain(nextpossible node,direcion to it,cost)
+                for successor in successors_list:
+                    current_node_child = successor[0]
+                    direction_to_child = successor[1]  # string
+                    cost_to_child = successor[2]  # string
+                    cost_from_start_to_child = cost_to_node + cost_to_child
+                    path_to_child_from_start = path_to_node + [direction_to_child]
+                    fringe.push((current_node_child, path_to_child_from_start,cost_from_start_to_child),cost_from_start_to_child+nullHeuristic(current_node_child,problem))
+                    # print "Successors:", problem.getSuccessors(node)
+    # print "Start:", problem.getStartState()
+    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    return path_to_node
     util.raiseNotDefined()
-
-
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
