@@ -114,25 +114,27 @@ def breadthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     fringe = util.Queue()
     visited = set()
-    node = problem.getStartState() #start node it self
-    fringe.push((node, []))         #start node and path to it
-
+    node_and_corners = problem.getStartState()  # start node it self and cornersLeft
+    fringe.push((node_and_corners, []))         #start node and path to it
     while True:
-     popped_element = fringe.pop()
-     node = popped_element[0]
-     path_to_node = popped_element[1]
-     if problem.isGoalState(node):
-         break
-
-     else:
-        if node not in visited:
+        popped_element = fringe.pop()
+        node_and_corners = popped_element[0]  # node
+        print 'state', node_and_corners
+        node = node_and_corners[0]
+        path_to_node = popped_element[1]
+        if problem.isGoalState(node_and_corners):
+          print "Goal condition true"
+          break  #every time i am in a corner
+        else:
+          if node not in visited:
             visited.add(node)
-            successors_list = problem.getSuccessors(node)#contain(nextpossible node,direcion to it,cost)
+            successors_list = problem.getSuccessors(node_and_corners)#contain(nextpossible node,direcion to it,cost)
             for successor in successors_list:
-                current_node_child = successor[0]
+                current_node_child = successor[0][0]
+                current_node_corners = successor[0][1]
                 direction_to_child = successor[1] #string
                 path_to_child_from_start = path_to_node+ [direction_to_child]
-                fringe.push((current_node_child,path_to_child_from_start))
+                fringe.push(([current_node_child,current_node_corners],path_to_child_from_start))
                 #print "Successors:", problem.getSuccessors(node)
     #print "Start:", problem.getStartState()
     #print "Is the start a goal?", problem.isGoalState(problem.getStartState())
@@ -144,11 +146,11 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     fringe = util.PriorityQueue()
     visited = set()
-    node = problem.getStartState()  # start node it self
+    node = problem.getStartState() # start node it self
     fringe.push((node, [],0),0)  # start node and path to it
     while True:
         popped_element = fringe.pop()
-        node = popped_element[0]
+        node = popped_element[0][0]
         path_to_node = popped_element[1]
         cost_to_node = popped_element[2]
         if problem.isGoalState(node):
@@ -158,7 +160,7 @@ def uniformCostSearch(problem):
                 visited.add(node)
                 successors_list = problem.getSuccessors(node)  # contain(nextpossible node,direcion to it,cost)
                 for successor in successors_list:
-                    current_node_child = successor[0]
+                    current_node_child = successor[0][0]
                     direction_to_child = successor[1]  # string
                     cost_to_child = successor[2]  # string
                     cost_from_start_to_child = cost_to_node + cost_to_child
@@ -183,26 +185,30 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "*** YOUR CODE HERE ***"
     fringe = util.PriorityQueue()
     visited = set()
-    node = problem.getStartState()  # start node it self
-    fringe.push((node, [],0), nullHeuristic(problem.getStartState(), problem) + 0)  # start node and path to it
+    node_and_corners = problem.getStartState()  # start node it self and cornersLeft
+    fringe.push((node_and_corners,[],0), heuristic(problem.getStartState(), problem) + 0)  # start node and path to it
     while True:
         popped_element = fringe.pop()
-        node = popped_element[0]
+        node_and_corners = popped_element[0]   #node
+        print 'mlll',node_and_corners
+        node = node_and_corners[0]
         path_to_node = popped_element[1]
         cost_to_node = popped_element[2]
-        if problem.isGoalState(node):
+        #print "node", node, "corn", corners,"path_",path_to_node,"cost",cost_to_node
+        if problem.isGoalState(node_and_corners):
             break
         else:
             if node not in visited:
                 visited.add(node)
-                successors_list = problem.getSuccessors(node)  # contain(nextpossible node,direcion to it,cost)
+                successors_list = problem.getSuccessors(node_and_corners)  # contain(nextpossible node,direcion to it,cost)
                 for successor in successors_list:
-                    current_node_child = successor[0]
+                    current_node_child = successor[0][0]
+                    current_node_corners = successor[0][1]
                     direction_to_child = successor[1]  # string
                     cost_to_child = successor[2]  # string
                     cost_from_start_to_child = cost_to_node + cost_to_child
                     path_to_child_from_start = path_to_node + [direction_to_child]
-                    fringe.push((current_node_child, path_to_child_from_start,cost_from_start_to_child),cost_from_start_to_child+nullHeuristic(current_node_child,problem))
+                    fringe.push(([current_node_child,current_node_corners], path_to_child_from_start,cost_from_start_to_child),cost_from_start_to_child+heuristic(current_node_child,problem))
                     # print "Successors:", problem.getSuccessors(node)
     # print "Start:", problem.getStartState()
     # print "Is the start a goal?", problem.isGoalState(problem.getStartState())

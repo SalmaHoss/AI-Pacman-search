@@ -287,11 +287,12 @@ class CornersProblem(search.SearchProblem):
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
         self.corners = [(1,1), (1,top), (right, 1), (right, top)]
-        #self.cornersLeft = self.corners
+        self.cornersLeft = self.corners
         ##here i put corners in a set then i will turn visited to true..if four true goal
         #reached
         #for corner in self.corners:
         #
+
         for corner in self.corners:
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
@@ -301,49 +302,52 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
 
     def getStartState(self):
-        "Returns the start state (in your state space, not the full Pacman state space)"
-        cornersLeft = set()
-        for corner in self.corners:
-            cornersLeft.add(corner)
-
-        if self.startingPosition in self.corners:
-            self.cornersLeft.remove(self.startingPosition)
-        return [self.startingPosition,cornersLeft]
+        """
+        Returns the start state (in your state space, not the full Pacman state
+        space)
+        """
+        "*** YOUR CODE HERE ***"
+        return self.startingPosition
+        util.raiseNotDefined()
 
     def isGoalState(self, state):
-        "Returns whether this search state is a goal state of the problem"
-        print  "here in goal",len(state[1])
-        return len(state[1]) == 0
+        """
+        Returns whether this search state is a goal state of the problem.
+        """
+        "*** YOUR CODE HERE ***"
+        return not len(self.cornersLeft) #if length of list is 0 you reached goal-we remove from cornerLeft when we visit a corner
+        util.raiseNotDefined()
 
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
+
          As noted in search.py:
-             For a given state, this should return a list of triples,
-         (successor, action, stepCost), where 'successor' is a
-         successor to the current state, 'action' is the action
-         required to get there, and 'stepCost' is the incremental
-         cost of expanding to that successor
+            For a given state, this should return a list of triples, (successor,
+            action, stepCost), where 'successor' is a successor to the current
+            state, 'action' is the action required to get there, and 'stepCost'
+            is the incremental cost of expanding to that successor
         """
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
+            #state[0] current pos ... state[1] remaining corners
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            x, y = state[0]
+            x,y = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            hitsWall = self.walls[nextx][nexty]
+            currentNode = nextx , nexty
+            hitsWall = self.walls[nextx][nexty]     #boolean true if this x,y is a wall
             if not hitsWall:
+                for corner in self.cornersLeft :    #cornersLeft is defines up as a list of the corners so we can remove from
+                   if corner == currentNode:        #and check it
+                       self.cornersLeft.remove(currentNode)
+                "*** YOUR CODE HERE ***"
                 nextState = (nextx, nexty)
                 cost = 1
-                corners_Left = state[1]
-                print "here", len(corners_Left)
-                corners_set = set(corners_Left)
-                if nextState in corners_set:
-                  print "removing"
-                  corners_set.remove(nextState)
-                successors.append(([nextState, corners_set], action, cost))
-        self._expanded += 1
+                successors.append((nextState, action, cost))
+        self._expanded += 1 # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
@@ -379,30 +383,18 @@ def cornersHeuristic(state, problem):
     tot_distance = 0
     currentPos = state
     distances_to_corners = []
-    distance = 0
     if len(cornersLeft) > 0:
-        #here we search for the colsest to current position
         for i in range(len(cornersLeft)):  #
             corner = cornersLeft[i]
             distances_to_corners.append(manhattanHeuristicCorner(currentPos,corner))
         index = distances_to_corners.index(min(distances_to_corners))
-        distance_to_nearest = min(distances_to_corners)
-        closest = cornersLeft[index]  #closest to my current position (a point)
+        closest = cornersLeft[index]
         cornersLeft.remove(closest)
-        while len(cornersLeft) > 0:
-            #here we search for the closest corner to the  closest corner !
-            distances_from_corners_to_corner = []
-            first_corner = closest
-            for i in range(len(cornersLeft)):  #loop to get distances from the closest corner to the other three corners
-                other_corner = cornersLeft[i]
-                distances_from_corners_to_corner.append(manhattanHeuristicCorner(first_corner, other_corner))
-            index = distances_to_corners.index(min(distances_to_corners))
-            closest_corner = min(distances_to_corners)
-            closest2 = cornersLeft[index]  # closest to my current position
-            cornersLeft.remove(closest2)  #
-            tot_distance = tot_distance + closest_corner
-        distance = distance_to_nearest + tot_distance
-    return distance # Default to trivial solution
+
+
+
+    "*** YOUR CODE HERE ***"
+    return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
